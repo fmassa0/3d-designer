@@ -6,17 +6,21 @@ import { CatalogPanel } from './ui/CatalogPanel'
 import { PropertiesPanel } from './ui/PropertiesPanel'
 import { MoodBoard } from './ui/MoodBoard'
 import { Onboarding } from './ui/Onboarding'
+import { ErrorBoundary } from './ui/ErrorBoundary'
 
 export default function App() {
   const activePanel = useStore((s) => s.activePanel)
   const selectedId = useStore((s) => s.selectedId)
   const setPanel = useStore((s) => s.setPanel)
+  const editorMode = useStore((s) => s.editorMode)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       const s = useStore.getState()
+      // In plan mode the WallBuilder owns Enter/Escape.
+      if (s.editorMode === 'plan') return
       if ((e.key === 'Delete' || e.key === 'Backspace') && s.selectedId) {
         e.preventDefault()
         s.removeItem(s.selectedId)
@@ -34,7 +38,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // When an item is selected, surface the properties panel automatically.
+  // Selecting an item surfaces the properties panel (unless browsing catalog/mood).
   useEffect(() => {
     if (selectedId && activePanel !== 'properties') {
       useStore.setState({ activePanel: 'properties' })
@@ -43,44 +47,48 @@ export default function App() {
   }, [selectedId])
 
   return (
-    <div className="app">
-      <Scene />
-      <TopBar />
+    <ErrorBoundary>
+      <div className="app">
+        <Scene />
+        <TopBar />
 
-      {activePanel === 'catalog' && <CatalogPanel />}
-      {activePanel === 'moodboard' && <MoodBoard />}
-      {(activePanel === 'properties' || selectedId) && activePanel !== 'catalog' && activePanel !== 'moodboard' && (
-        <PropertiesPanel />
-      )}
+        {activePanel === 'catalog' && <CatalogPanel />}
+        {activePanel === 'moodboard' && <MoodBoard />}
+        {(activePanel === 'properties' || selectedId) && activePanel !== 'catalog' && activePanel !== 'moodboard' && (
+          <PropertiesPanel />
+        )}
 
-      <div className="viewport-hint">
-        <span>
-          <kbd>Click</kbd> seleziona
-        </span>
-        <span>
-          <kbd>G</kbd> sposta · <kbd>R</kbd> ruota
-        </span>
-        <span>
-          <kbd>D</kbd> duplica · <kbd>Canc</kbd> elimina
-        </span>
+        {editorMode === 'plan' ? (
+          <div className="plan-banner">
+            <span className="dot-live" />
+            <b>Planimetria</b> · <kbd>Click</kbd> aggiungi punto · <kbd>Click</kbd> sul primo punto o{' '}
+            <kbd>Invio</kbd> per chiudere · <kbd>Esc</kbd> annulla
+          </div>
+        ) : (
+          <div className="viewport-hint">
+            <span><kbd>Click</kbd> seleziona</span>
+            <span><kbd>G</kbd> sposta · <kbd>R</kbd> ruota</span>
+            <span><kbd>D</kbd> duplica · <kbd>Canc</kbd> elimina</span>
+          </div>
+        )}
+
+        <nav className="mobile-nav">
+          <button className={activePanel === 'catalog' ? 'active' : ''} onClick={() => setPanel('catalog')}>
+            <span className="mi">🧱</span> Arredi
+          </button>
+          <button
+            className={activePanel === 'properties' ? 'active' : ''}
+            onClick={() => useStore.setState({ activePanel: 'properties' })}
+          >
+            <span className="mi">⚙️</span> Progetto
+          </button>
+          <button className={activePanel === 'moodboard' ? 'active' : ''} onClick={() => setPanel('moodboard')}>
+            <span className="mi">📌</span> Mood
+          </button>
+        </nav>
+
+        <Onboarding />
       </div>
-
-      <nav className="mobile-nav">
-        <button className={activePanel === 'catalog' ? 'active' : ''} onClick={() => setPanel('catalog')}>
-          <span className="mi">🧱</span> Arredi
-        </button>
-        <button
-          className={activePanel === 'properties' ? 'active' : ''}
-          onClick={() => useStore.setState({ activePanel: 'properties' })}
-        >
-          <span className="mi">⚙️</span> Progetto
-        </button>
-        <button className={activePanel === 'moodboard' ? 'active' : ''} onClick={() => setPanel('moodboard')}>
-          <span className="mi">📌</span> Mood
-        </button>
-      </nav>
-
-      <Onboarding />
-    </div>
+    </ErrorBoundary>
   )
 }

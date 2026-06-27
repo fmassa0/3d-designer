@@ -9,6 +9,19 @@ export type FurnitureType =
   | 'lamp'
   | 'plant'
   | 'tv'
+  | 'model'
+
+export type MaterialPreset = 'tinta' | 'parquet' | 'marmo' | 'piastrelle' | 'cemento' | 'moquette'
+
+export type EditorMode = 'design' | 'plan'
+
+export interface WallSegment {
+  id: string
+  ax: number
+  az: number
+  bx: number
+  bz: number
+}
 
 export interface Dimensions {
   w: number
@@ -30,6 +43,8 @@ export interface FurnitureItem {
   rotationY: number
   dimensions: Dimensions
   color: string
+  /** for type === 'model': object URL of an imported .glb */
+  modelUrl?: string
 }
 
 export interface Room {
@@ -38,6 +53,9 @@ export interface Room {
   height: number
   wallColor: string
   floorColor: string
+  floorMaterial: MaterialPreset
+  /** show the default parametric room (floor + 2 walls). Off = blank slate. */
+  shell: boolean
 }
 
 export interface FloorPlan {

@@ -13,6 +13,8 @@ import { useStore } from '../store'
 import { Room } from './Room'
 import { Floorplan } from './Floorplan'
 import { Furniture } from './Furniture'
+import { Walls } from './Walls'
+import { WallBuilder } from './WallBuilder'
 
 type ViewDetail = 'top' | 'reset' | 'front'
 
@@ -46,6 +48,7 @@ function CameraController() {
 
 export function Scene() {
   const items = useStore((s) => s.items)
+  const editorMode = useStore((s) => s.editorMode)
 
   return (
     <div className="canvas-wrap">
@@ -78,7 +81,9 @@ export function Scene() {
         <directionalLight position={[-6, 5, -4]} intensity={0.4} />
 
         <Room />
+        <Walls />
         <Floorplan />
+        <WallBuilder />
         {items.map((it) => (
           <Furniture key={it.id} item={it} />
         ))}
@@ -103,7 +108,8 @@ export function Scene() {
           makeDefault
           minDistance={2}
           maxDistance={28}
-          maxPolarAngle={Math.PI / 2.05}
+          maxPolarAngle={editorMode === 'plan' ? 0.2 : Math.PI / 2.05}
+          enableRotate={editorMode === 'design'}
           enableDamping
           dampingFactor={0.08}
         />

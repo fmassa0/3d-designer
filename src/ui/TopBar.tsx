@@ -13,7 +13,14 @@ export function TopBar() {
   const activePanel = useStore((s) => s.activePanel)
   const setPanel = useStore((s) => s.setPanel)
   const clearAll = useStore((s) => s.clearAll)
+  const editorMode = useStore((s) => s.editorMode)
+  const setEditorMode = useStore((s) => s.setEditorMode)
   const importRef = useRef<HTMLInputElement>(null)
+
+  const switchMode = (m: 'design' | 'plan') => {
+    setEditorMode(m)
+    emitView(m === 'plan' ? 'top' : 'reset')
+  }
 
   const exportJSON = () => {
     const { room, items } = useStore.getState()
@@ -61,6 +68,23 @@ export function TopBar() {
           <div className="name">Studio</div>
           <div className="sub">Interior Design 3D</div>
         </div>
+      </div>
+
+      <div className="toolgroup mode-toggle">
+        <button
+          className={'btn icon' + (editorMode === 'design' ? ' active' : '')}
+          onClick={() => switchMode('design')}
+          title="Modalità arredamento 3D"
+        >
+          <span className="ico">🛋️</span> <span className="desktop-only">Design</span>
+        </button>
+        <button
+          className={'btn icon' + (editorMode === 'plan' ? ' active' : '')}
+          onClick={() => switchMode('plan')}
+          title="Modalità planimetria: disegna le pareti dall'alto"
+        >
+          <span className="ico">📐</span> <span className="desktop-only">Planimetria</span>
+        </button>
       </div>
 
       <div className="toolgroup desktop-only">
