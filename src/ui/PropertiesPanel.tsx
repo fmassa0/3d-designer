@@ -88,6 +88,7 @@ function RoomProps() {
   const walls = useStore((s) => s.walls)
   const clearWalls = useStore((s) => s.clearWalls)
   const setEditorMode = useStore((s) => s.setEditorMode)
+  const startCalibration = useStore((s) => s.startCalibration)
   const fp = useStore((s) => s.floorplan)
   const setFloorplan = useStore((s) => s.setFloorplan)
   const clearFloorplan = useStore((s) => s.clearFloorplan)
@@ -184,7 +185,17 @@ function RoomProps() {
           <Slider label="Rotazione" unit="°" min={0} max={360} step={1} value={fp.rotationDeg} onChange={(rotationDeg) => setFloorplan({ rotationDeg })} />
           <Slider label="Posizione X" min={-8} max={8} step={0.1} value={fp.x} onChange={(x) => setFloorplan({ x })} />
           <Slider label="Posizione Z" min={-8} max={8} step={0.1} value={fp.z} onChange={(z) => setFloorplan({ z })} />
-          <div className="row" style={{ marginTop: 6 }}>
+          <button
+            className="btn primary"
+            style={{ width: '100%', marginTop: 4 }}
+            onClick={() => {
+              startCalibration()
+              window.dispatchEvent(new CustomEvent('studio-view', { detail: 'top' }))
+            }}
+          >
+            📏 Calibra scala (misura reale)
+          </button>
+          <div className="row" style={{ marginTop: 8 }}>
             <button className="btn ghost" onClick={() => setFloorplan({ visible: !fp.visible })}>{fp.visible ? '👁 Nascondi' : '👁 Mostra'}</button>
             <button className="btn ghost danger" onClick={clearFloorplan}>🗑 Rimuovi</button>
           </div>

@@ -717,6 +717,62 @@ input[type='color'] {
   }
 }
 
+/* ---------- Calibration bar ---------- */
+.calib-bar {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 16;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  max-width: calc(100% - 24px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.calib-title {
+  font-weight: 700;
+  font-family: var(--display);
+}
+.calib-hint {
+  color: var(--text-dim);
+}
+.calib-meas {
+  color: var(--accent-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.calib-eq {
+  color: var(--text-faint);
+}
+.calib-input {
+  width: 72px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--stroke-strong);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+}
+.calib-input:focus {
+  outline: none;
+  border-color: var(--accent-2);
+}
+.calib-unit {
+  color: var(--text-dim);
+  margin-left: -4px;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 820px) {
   .app {

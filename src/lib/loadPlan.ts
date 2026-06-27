@@ -17,10 +17,26 @@ function imageAspect(url: string): Promise<number> {
   })
 }
 
+let workerReady = false
+
+async function ensureWorker(pdfjs: typeof import('pdfjs-dist')) {
+  if (workerReady) return
+  try {
+    // Vite bundles the worker correctly (right MIME, hashed asset). This avoids
+    // GitHub Pages serving raw .mjs with a MIME type the browser rejects.
+    const PdfWorker = (await import('pdfjs-dist/build/pdf.worker.min.mjs?worker')).default
+    pdfjs.GlobalWorkerOptions.workerPort = new PdfWorker()
+  } catch (e) {
+    // Fallback: run on the main thread (slower but always works).
+    console.warn('[plan] worker non disponibile, uso il thread principale', e)
+    pdfjs.GlobalWorkerOptions.workerSrc = ''
+  }
+  workerReady = true
+}
+
 async function pdfToPlan(file: File): Promise<LoadedPlan> {
   const pdfjs = await import('pdfjs-dist')
-  const worker = await import('pdfjs-dist/build/pdf.worker.min.mjs?url')
-  pdfjs.GlobalWorkerOptions.workerSrc = worker.default
+  await ensureWorker(pdfjs)
 
   const data = await file.arrayBuffer()
   const pdf = await pdfjs.getDocument({ data }).promise

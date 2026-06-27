@@ -46,6 +46,15 @@ interface DesignState {
   removeWall: (id: string) => void
   clearWalls: () => void
 
+  // floor-plan calibration
+  calibrating: boolean
+  calibPoints: { x: number; z: number }[]
+  startCalibration: () => void
+  addCalibPoint: (p: { x: number; z: number }) => void
+  resetCalibration: () => void
+  cancelCalibration: () => void
+  applyCalibration: (realMeters: number) => void
+
   // tools
   setTransformMode: (m: TransformMode) => void
   toggleSnap: () => void
@@ -106,6 +115,8 @@ export const useStore = create<DesignState>()(
       snap: true,
       activePanel: 'catalog',
       editorMode: 'design',
+      calibrating: false,
+      calibPoints: [],
 
       updateRoom: (patch) => set((s) => ({ room: { ...s.room, ...patch } })),
       setFloorMaterial: (m) => set((s) => ({ room: { ...s.room, floorMaterial: m } })),
@@ -170,6 +181,25 @@ export const useStore = create<DesignState>()(
       addWalls: (segments) => set((s) => ({ walls: [...s.walls, ...segments] })),
       removeWall: (id) => set((s) => ({ walls: s.walls.filter((w) => w.id !== id) })),
       clearWalls: () => set({ walls: [] }),
+
+      startCalibration: () => set({ calibrating: true, calibPoints: [], editorMode: 'plan', selectedId: null }),
+      addCalibPoint: (p) =>
+        set((s) => ({ calibPoints: s.calibPoints.length >= 2 ? [p] : [...s.calibPoints, p] })),
+      resetCalibration: () => set({ calibPoints: [] }),
+      cancelCalibration: () => set({ calibrating: false, calibPoints: [] }),
+      applyCalibration: (realMeters) =>
+        set((s) => {
+          const [a, b] = s.calibPoints
+          if (!a || !b) return {}
+          const measured = Math.hypot(b.x - a.x, b.z - a.z)
+          if (measured < 1e-4 || realMeters <= 0) return { calibrating: false, calibPoints: [] }
+          const k = realMeters / measured
+          return {
+            floorplan: { ...s.floorplan, width: s.floorplan.width * k, depth: s.floorplan.depth * k },
+            calibrating: false,
+            calibPoints: [],
+          }
+        }),
 
       setTransformMode: (m) => set({ transformMode: m }),
       toggleSnap: () => set((s) => ({ snap: !s.snap })),

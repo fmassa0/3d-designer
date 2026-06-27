@@ -15,6 +15,7 @@ import { Floorplan } from './Floorplan'
 import { Furniture } from './Furniture'
 import { Walls } from './Walls'
 import { WallBuilder } from './WallBuilder'
+import { Calibrator } from './Calibrator'
 
 type ViewDetail = 'top' | 'reset' | 'front'
 
@@ -84,6 +85,7 @@ export function Scene() {
         <Walls />
         <Floorplan />
         <WallBuilder />
+        <Calibrator />
         {items.map((it) => (
           <Furniture key={it.id} item={it} />
         ))}

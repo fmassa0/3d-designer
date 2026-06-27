@@ -1,5 +1,6 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useStore } from '../store'
+import { exportProjectPdf } from '../lib/exportPdf'
 
 function emitView(detail: 'top' | 'reset' | 'front') {
   window.dispatchEvent(new CustomEvent('studio-view', { detail }))
@@ -16,6 +17,19 @@ export function TopBar() {
   const editorMode = useStore((s) => s.editorMode)
   const setEditorMode = useStore((s) => s.setEditorMode)
   const importRef = useRef<HTMLInputElement>(null)
+  const [pdfBusy, setPdfBusy] = useState(false)
+
+  const exportPDF = async () => {
+    if (pdfBusy) return
+    setPdfBusy(true)
+    try {
+      await exportProjectPdf()
+    } catch (e) {
+      alert('Errore export PDF: ' + (e as Error).message)
+    } finally {
+      setPdfBusy(false)
+    }
+  }
 
   const switchMode = (m: 'design' | 'plan') => {
     setEditorMode(m)
@@ -138,9 +152,12 @@ export function TopBar() {
 
       <div className="toolgroup desktop-only">
         <button className="btn icon" onClick={() => importRef.current?.click()} title="Importa progetto">⤓ Importa</button>
-        <button className="btn icon" onClick={exportJSON} title="Esporta progetto">⤴ Esporta</button>
-        <button className="btn primary" onClick={exportPNG} title="Esporta render PNG">
+        <button className="btn icon" onClick={exportJSON} title="Esporta progetto (JSON)">⤴ Esporta</button>
+        <button className="btn icon" onClick={exportPNG} title="Esporta render PNG">
           <span className="ico">📷</span> Render
+        </button>
+        <button className="btn primary" onClick={exportPDF} disabled={pdfBusy} title="Esporta report PDF della sessione">
+          <span className="ico">{pdfBusy ? '⏳' : '📄'}</span> {pdfBusy ? 'Genero…' : 'PDF'}
         </button>
       </div>
 

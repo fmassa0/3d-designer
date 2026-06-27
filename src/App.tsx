@@ -7,12 +7,14 @@ import { PropertiesPanel } from './ui/PropertiesPanel'
 import { MoodBoard } from './ui/MoodBoard'
 import { Onboarding } from './ui/Onboarding'
 import { ErrorBoundary } from './ui/ErrorBoundary'
+import { CalibrationBar } from './ui/CalibrationBar'
 
 export default function App() {
   const activePanel = useStore((s) => s.activePanel)
   const selectedId = useStore((s) => s.selectedId)
   const setPanel = useStore((s) => s.setPanel)
   const editorMode = useStore((s) => s.editorMode)
+  const calibrating = useStore((s) => s.calibrating)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -58,19 +60,22 @@ export default function App() {
           <PropertiesPanel />
         )}
 
-        {editorMode === 'plan' ? (
-          <div className="plan-banner">
-            <span className="dot-live" />
-            <b>Planimetria</b> · <kbd>Click</kbd> aggiungi punto · <kbd>Click</kbd> sul primo punto o{' '}
-            <kbd>Invio</kbd> per chiudere · <kbd>Esc</kbd> annulla
-          </div>
-        ) : (
-          <div className="viewport-hint">
-            <span><kbd>Click</kbd> seleziona</span>
-            <span><kbd>G</kbd> sposta · <kbd>R</kbd> ruota</span>
-            <span><kbd>D</kbd> duplica · <kbd>Canc</kbd> elimina</span>
-          </div>
-        )}
+        <CalibrationBar />
+
+        {!calibrating &&
+          (editorMode === 'plan' ? (
+            <div className="plan-banner">
+              <span className="dot-live" />
+              <b>Planimetria</b> · <kbd>Click</kbd> aggiungi punto · <kbd>Click</kbd> sul primo punto o{' '}
+              <kbd>Invio</kbd> per chiudere · <kbd>Esc</kbd> annulla
+            </div>
+          ) : (
+            <div className="viewport-hint">
+              <span><kbd>Click</kbd> seleziona</span>
+              <span><kbd>G</kbd> sposta · <kbd>R</kbd> ruota</span>
+              <span><kbd>D</kbd> duplica · <kbd>Canc</kbd> elimina</span>
+            </div>
+          ))}
 
         <nav className="mobile-nav">
           <button className={activePanel === 'catalog' ? 'active' : ''} onClick={() => setPanel('catalog')}>

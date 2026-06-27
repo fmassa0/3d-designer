@@ -14,6 +14,7 @@ const uid = () =>
 
 export function WallBuilder() {
   const editorMode = useStore((s) => s.editorMode)
+  const calibrating = useStore((s) => s.calibrating)
   const snap = useStore((s) => s.snap)
   const addWalls = useStore((s) => s.addWalls)
   const [draft, setDraft] = useState<P[]>([])
@@ -54,7 +55,7 @@ export function WallBuilder() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorMode])
 
-  if (editorMode !== 'plan') return null
+  if (editorMode !== 'plan' || calibrating) return null
 
   const onMove = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
